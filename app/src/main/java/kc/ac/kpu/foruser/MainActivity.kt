@@ -7,18 +7,18 @@ import android.os.Bundle
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
+import com.google.android.gms.common.api.GoogleApiClient
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.activity_main.*
-import org.jetbrains.anko.toast
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import org.jetbrains.anko.toast
+private const val COUNT_KEY = "com.example.key.count"
 
 class MainActivity : AppCompatActivity() {
 
     var result: TextView? = null
     val database: FirebaseDatabase? = null
     val databaseReference: DatabaseReference? = null
+    val client : GoogleApiClient? = null
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,8 +31,15 @@ class MainActivity : AppCompatActivity() {
         }
 
         val database : FirebaseDatabase = FirebaseDatabase.getInstance()
-val myRef : DatabaseReference = database.getReference("message/text1")
-// var tv = findViewById(R.id.examtext) as TextView
+        val myRef : DatabaseReference = database.getReference("message/text1")
+        var tv = findViewById(R.id.examtext) as TextView
+        //var string : String ? =null
+
+
+        if (client != null) {
+            if(client.isConnected==false){
+                client.connect()
+
 
 myRef.addValueEventListener(object : ValueEventListener {
     override fun onCancelled(p0: DatabaseError) {
@@ -41,6 +48,18 @@ myRef.addValueEventListener(object : ValueEventListener {
 
 
     override fun onDataChange(dataSnapshot: DataSnapshot) {
+
+        val option = dataSnapshot.exists()
+        if (option == true) {
+            val value = dataSnapshot.children.elementAt(0).value
+
+            tv.text = "$value"
+            //나중에 저장해서 워치로 보내려면 임시로 저장해야함
+            //   string = tv.text as String?
+
+        } else {
+            tv.text = "메세지 전송 중입니다."
+        }
 /*
                 val value = dataSnapshot?.value
                 tv.text = "$value"
